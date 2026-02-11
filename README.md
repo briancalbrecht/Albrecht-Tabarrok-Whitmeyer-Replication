@@ -3,6 +3,11 @@
 This folder is the download package for the paper-facing figures and table.
 It includes the code, raw data inputs, and static paper assets needed to run the package as distributed.
 
+## Paper
+
+This package reproduces paper outputs for:
+- **Chaos and Misallocation under Price Controls** by Brian C. Albrecht, Alex Tabarrok, and Mark Whitmeyer.
+
 ## Included Inputs
 
 Raw data required by the retained scripts:
@@ -15,22 +20,24 @@ Static paper assets included locally:
 - `assets/figure_state_avg_shadow_map_impute_full_mid.pdf`
 - `assets/figure_state_avg_shadow_map_known_exact.pdf`
 
-## Paper Outputs Covered
+## What It Generates
 
-`make all` produces/checks these figure PDFs in `output/`:
-1. `figure_rationing_total_1974.pdf`
-2. `figure_misallocation_two_market.pdf`
-3. `figure_box_constraints.pdf`
-4. `random_scenarios_matrix.pdf`
-5. `figure_station_joint_extremal_curves.pdf`
-6. `figure_station_joint_extremal_curves_with_choke.pdf`
-7. `figure_state_avg_shadow_map_impute_full_mid.pdf`
-8. `figure_state_avg_shadow_map_known_exact.pdf`
+Run `make all` to write the paper figure PDFs into `output/`:
+- `figure_rationing_total_1974.pdf` (copied from `assets/`)
+- `figure_misallocation_two_market.pdf` (generated)
+- `figure_box_constraints.pdf` (generated)
+- `random_scenarios_matrix.pdf` (copied from `assets/`)
+- `figure_station_joint_extremal_curves.pdf` (generated)
+- `figure_station_joint_extremal_curves_with_choke.pdf` (generated)
+- `figure_state_avg_shadow_map_impute_full_mid.pdf` (copied from `assets/`)
+- `figure_state_avg_shadow_map_known_exact.pdf` (copied from `assets/`)
 
-Optional table target:
-1. `make table` writes `table_assumption_interval_decomposition_impute_full_mid.csv`
+Optional:
+- `make table` writes `output/table_assumption_interval_decomposition_impute_full_mid.csv`.
 
-Note: the two state map PDFs are shipped as static assets because Plotly PDF export depends on a working local Chrome/Chromium runtime.
+Additional generated diagnostic files (PNGs/JSON/CSV) are also written to `output/`.
+
+Note: the two state map PDFs are shipped as assets because Plotly PDF export depends on a working local Chrome/Chromium runtime.
 
 ## What Is Excluded
 
