@@ -1,0 +1,4 @@
+case_id,assumptions,anchor_mode,choke_M,phi_lower_pct,phi_upper_pct,ratio_lower,ratio_upper,ratio_range,p_star_lower,p_star_upper
+slope_fixed_anchor,Slope bounds only (fixed midpoint anchor),fixed,inf,4.983416912812905,9.965257772968453,2.4609466236113007,4.921114949614029,"[2.46, 4.92]",1.3333333333333333,1.3416666666666666
+plus_anchor_uncertainty,+ Anchor uncertainty (p0 intervals),interval,inf,2.2146252651036367,17.71743839181677,1.0936421062240136,8.749352292255157,"[1.09, 8.75]",1.225,1.45
+plus_choke,+ Choke constraint (M=4),interval,4.0,2.2146252651036367,11.625762864700054,1.0936421062240136,5.741117464049385,"[1.09, 5.74]",1.225,1.325

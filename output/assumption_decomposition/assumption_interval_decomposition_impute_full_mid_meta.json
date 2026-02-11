@@ -1,0 +1,63 @@
+{
+  "scenario_id": "impute_full_mid",
+  "scenario_label": "Known gallons + missing imputed (full band, midpoint)",
+  "scenario_mass_meta": {
+    "mode": "impute",
+    "known_states": 36,
+    "included_states": 48,
+    "imputed_states": [
+      "Arkansas",
+      "Delaware",
+      "Georgia",
+      "Louisiana",
+      "Massachusetts",
+      "New Mexico",
+      "New York",
+      "North Carolina",
+      "Oklahoma",
+      "Rhode Island",
+      "South Carolina",
+      "Texas"
+    ],
+    "missing_in_baseline_file": [],
+    "price_band": "full_no_ind",
+    "p_lo": 0.43726050914833103,
+    "p_hi": 0.6829077309647636,
+    "p_use": 0.5600841200565474
+  },
+  "params": {
+    "adding_up": "national",
+    "shortage": 0.09,
+    "p_control": 0.8,
+    "eps_open": 0.3,
+    "eps_L": 0.2,
+    "eps_U": 0.4,
+    "p_base": 1.0,
+    "q_max": 1.0,
+    "p0_method": "baseline_mid",
+    "choke": 4.0,
+    "n_grid": 1201,
+    "outer_search_grid": 401,
+    "outer_max_iters": 1,
+    "outer_starts": 2,
+    "outer_coord_grid": 2,
+    "outer_seed": 1974,
+    "outer_tol": 1e-06
+  },
+  "calibration": {
+    "n_states": 48,
+    "n_markets_active": 91,
+    "Qbar": 0.9099999999999998,
+    "shortage": 0.09000000000000019,
+    "q_open": 1.06,
+    "q_non_open": 0.6737667961075224
+  },
+  "harberger": {
+    "psi_ref": 0.020250000000000087,
+    "psi_ref_pct": 2.025000000000009,
+    "g_steep": -5.0
+  },
+  "outputs": {
+    "table_csv": "output/assumption_decomposition/table_assumption_interval_decomposition_impute_full_mid.csv"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "analysis_params": {
+    "choke": 4.0,
+    "epsilon_base": 0.3,
+    "epsilon_bounds": [
+      0.2,
+      0.4
+    ],
+    "p_bar": 0.8,
+    "shortage_rate": 0.09
+  },
+  "key_outputs": {
+    "joint_phi_lower_pct": 2.324553367653981,
+    "joint_phi_upper_pct": 12.708560933079315,
+    "joint_ratio_lower": 1.1479275889649296,
+    "joint_ratio_upper": 6.2758325595453455
+  },
+  "station_share_calibration": {
+    "closed_frac": 0.37692932575142163,
+    "n_states": 48,
+    "open_frac": 0.6230706742485784,
+    "source": "/Users/brian_icle/Documents/GitHub/price_controls/replication/paper_figure_replication/data/AAA Fuel Report 1974 w State Names and total stations simplified.xlsx"
+  },
+  "subset": {
+    "n_states_raw": null,
+    "subset_id": "all",
+    "subset_label": "Full AAA sample"
+  }
+}
