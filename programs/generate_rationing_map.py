@@ -3,6 +3,12 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from pathlib import Path
+
+THIS_DIR = Path(__file__).resolve().parent
+PACKAGE_ROOT = THIS_DIR.parent
+DATA_FILE = PACKAGE_ROOT / "data" / "AAA Fuel Report 1974 w State Names and total stations simplified.xlsx"
+OUTPUT_DIR = PACKAGE_ROOT / "output"
 
 # State name to USPS abbreviation
 STATE_ABBREVS = {
@@ -23,7 +29,7 @@ STATE_ABBREVS = {
 
 def load_data():
     """Load AAA survey data and compute total rationing rates."""
-    df = pd.read_excel('../data/AAA Fuel Report 1974 w State Names and total stations simplified.xlsx')
+    df = pd.read_excel(DATA_FILE)
     df = df[df['State'].notna()].copy()
 
     # Total rationing = out of fuel + limiting purchases
@@ -37,18 +43,23 @@ def load_data():
     return df
 
 
-def generate_map_plotly(df, output_path='../output/figure_rationing_total_1974.pdf'):
+def generate_map_plotly(df, output_path=None):
     """Deprecated: Plotly choropleth (kept for reference)."""
     raise RuntimeError("Plotly export disabled in this environment.")
 
 
-def generate_total_rationing_map(df, output_path='../output/figure_rationing_total_1974.pdf'):
+def generate_total_rationing_map(df, output_path=None):
     """Deprecated: Plotly choropleth (kept for reference)."""
     raise RuntimeError("Plotly export disabled in this environment.")
 
 
-def generate_side_by_side_maps(df, output_path='../output/figure_rationing_side_by_side_1974.pdf'):
+def generate_side_by_side_maps(df, output_path=None):
     """Deprecated: Plotly export disabled in this environment."""
+    if output_path is None:
+        output_path = OUTPUT_DIR / "figure_rationing_side_by_side_1974.pdf"
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     try:
         import plotly.graph_objects as go
         from plotly.subplots import make_subplots
@@ -144,7 +155,7 @@ def generate_side_by_side_maps(df, output_path='../output/figure_rationing_side_
         )
 
         # Save PNG via kaleido
-        pio.write_image(fig, output_path, width=1400, height=500, scale=2)
+        pio.write_image(fig, str(output_path), width=1400, height=500, scale=2)
         print(f"Saved: {output_path}")
         return True
 
@@ -153,7 +164,7 @@ def generate_side_by_side_maps(df, output_path='../output/figure_rationing_side_
         return False
 
 
-def generate_map_matplotlib(df, output_path='../output/figure_rationing_total_1974.pdf'):
+def generate_map_matplotlib(df, output_path=None):
     """Deprecated: geopandas map not configured here."""
     try:
         import geopandas as gpd
@@ -168,8 +179,13 @@ def generate_map_matplotlib(df, output_path='../output/figure_rationing_total_19
         return generate_bar_chart(df, output_path)
 
 
-def generate_bar_chart(df, output_path='../output/figure_rationing_total_1974_bar.pdf'):
+def generate_bar_chart(df, output_path=None):
     """Fallback: horizontal stacked bars by state."""
+    if output_path is None:
+        output_path = OUTPUT_DIR / "figure_rationing_total_1974_bar.pdf"
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     # Sort for readable labels
     df_sorted = df.sort_values('total_rationing', ascending=True)
 
@@ -196,7 +212,7 @@ def generate_bar_chart(df, output_path='../output/figure_rationing_total_1974_ba
     ax.axvline(mean_total, color='black', linestyle='--', alpha=0.7,
                label=f'Mean: {mean_total:.1f}%')
 
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.savefig(str(output_path), dpi=150, bbox_inches='tight')
     plt.close()
 
     print(f"Saved bar chart: {output_path}")

@@ -1,7 +1,7 @@
-# Paper Figure/Table Replication (Self-Contained)
+# Paper Figure/Table Replication Package
 
-This folder is a standalone replication package for the paper-facing figures/tables.
-It includes the minimal code, required raw data inputs, and static assets needed to run without depending on `../programs`, `../data`, or `../output`.
+This folder is the download package for the paper-facing figures and table.
+It includes the code, raw data inputs, and static paper assets needed to run the package as distributed.
 
 ## Included Inputs
 
@@ -40,10 +40,11 @@ Note: the two state map PDFs are shipped as static assets because Plotly PDF exp
 
 ## Usage
 
-From repository root:
+Quick start:
 
 ```bash
-cd replication/paper_figure_replication
+cd paper_figure_replication
+pip install -r requirements.txt
 make all
 ```
 

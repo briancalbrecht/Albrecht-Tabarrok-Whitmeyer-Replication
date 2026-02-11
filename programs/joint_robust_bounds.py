@@ -2,8 +2,7 @@
 Joint robust bounds with a binding adding-up constraint.
 
 This implements the "reduction to (p, x)" program described in the paper's
-Lemma 1 (see `replication/draft/proof_fixes.diff` for the version with the
-adding-up penalty terms).
+Lemma 1, including adding-up penalty terms.
 
 Core idea:
   - Each market i has an unknown inverse demand P_i(q) with bounded slopes

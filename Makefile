@@ -91,7 +91,7 @@ check:
 	@echo "All paper figure PDFs are present in $(OUT)/."
 
 clean:
-	@rm -f $(OUT)/*.pdf $(OUT)/.stamp_* $(OUT)/scenario_imputed_maps/* $(OUT)/scenario_known_exact_maps/* $(OUT)/assumption_decomposition/*
+	@rm -f $(OUT)/*.pdf $(OUT)/*.csv $(OUT)/.stamp_* $(OUT)/scenario_imputed_maps/* $(OUT)/scenario_known_exact_maps/* $(OUT)/assumption_decomposition/*
 	@echo "Cleaned generated files in $(OUT)/."
 
 help:

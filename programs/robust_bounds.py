@@ -27,7 +27,7 @@ from state_subset import resolve_state_subset
 # Parameters
 
 THIS_DIR = Path(__file__).resolve().parent
-# Standalone replication package root (paper_figure_replication/).
+# Replication package root (paper_figure_replication/).
 REPO_ROOT = THIS_DIR.parent
 
 # Anchor price (normalized baseline)

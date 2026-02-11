@@ -1,7 +1,7 @@
 """
 Assumption-to-interval decomposition for robust misallocation bounds.
 
-This is a standalone utility (no paper edits) that reports how the welfare
+This utility (no paper edits) reports how the welfare
 bound interval changes as restrictions are layered:
 
 1) Slope bounds with fixed anchors (midpoint p0 in each market),
