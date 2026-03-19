@@ -51,6 +51,30 @@ from state_status_joint_robust_bounds import (
 )
 
 
+def _solve_fixed_slope_analytical(markets: Sequence[MarketSpec], Qbar: float) -> Dict[str, float]:
+    """Exact Phi when each market has a fixed slope (g_L == g_U, possibly varying across markets).
+
+    With fixed slopes g_i (no slope uncertainty), the LP has a unique solution.
+    The efficient shadow price p* equalizes marginal values subject to adding-up:
+
+        sum_i q_i*(p*) = Qbar  where  q_i*(p*) = q0_i + (p* - p0_i) / g_i
+
+    Since sum_i q0_i = Qbar by construction, this reduces to sum_i (p* - p0_i)/g_i = 0,
+    giving the weighted mean:
+
+        p* = sum_i(p0_i / |g_i|) / sum_i(1 / |g_i|)
+
+    Misallocation: Phi = sum_i (p0_i - p*)^2 / (2 * |g_i|)
+    """
+    p0 = np.array([m.p0 for m in markets], dtype=float)
+    abs_g = np.array([abs(m.g_L) for m in markets], dtype=float)  # market-specific |g_i|
+
+    weights = 1.0 / abs_g  # weight = 1/|g_i|
+    p_star = float(np.dot(p0, weights) / np.sum(weights))
+    Phi = float(np.sum((p0 - p_star) ** 2 * weights) / 2.0)
+    return {"Phi": Phi, "p_star": p_star}
+
+
 def _clone_markets_with_choke(markets: Sequence[MarketSpec], choke: float) -> List[MarketSpec]:
     return [
         MarketSpec(
@@ -245,7 +269,69 @@ def main() -> None:
     g_steep = -args.p_base / args.eps_L
     psi_ref = 0.5 * abs(g_steep) * (float(meta["shortage"]) ** 2)
 
+    shortage_sq = float(meta["shortage"]) ** 2
+
     rows_out: List[Dict[str, object]] = []
+
+    # ---- Row 1: Common epsilon (matched Psi, R invariant to slope) ----
+    # Rebuild markets at each epsilon endpoint with a common (shared) slope.
+    # With eps_L = eps_U, bounds collapse to a single point; R = Phi/Psi(eps)
+    # is invariant across epsilon values (slope cancels in the ratio).
+    print("Solving case: common_epsilon | anchor=fixed | choke=none")
+    # With a common epsilon (g_L=g_U), the LP has kappa=0 and a unique
+    # solution — use the exact analytical formula instead of the grid solver.
+    markets_elastic, meta_elastic, _ = build_state_status_markets(
+        list(rows_s),
+        shortage=args.shortage,
+        p_control=args.p_control,
+        eps_open=args.eps_open,
+        p_base=args.p_base,
+        eps_L=args.eps_U,
+        eps_U=args.eps_U,
+        q_max=args.q_max,
+        p0_method=args.p0_method,
+    )
+    markets_inelastic, meta_inelastic, _ = build_state_status_markets(
+        list(rows_s),
+        shortage=args.shortage,
+        p_control=args.p_control,
+        eps_open=args.eps_open,
+        p_base=args.p_base,
+        eps_L=args.eps_L,
+        eps_U=args.eps_L,
+        q_max=args.q_max,
+        p0_method=args.p0_method,
+    )
+    sol_elastic = _solve_fixed_slope_analytical(markets_elastic, float(meta_elastic["Qbar"]))
+    sol_inelastic = _solve_fixed_slope_analytical(markets_inelastic, float(meta_inelastic["Qbar"]))
+    # Phi_lower: elastic endpoint (eps_U, flattest slope → smallest Phi)
+    # Phi_upper: inelastic endpoint (eps_L, steepest slope → largest Phi)
+    ce_phi_lower = sol_elastic["Phi"]
+    ce_phi_upper = sol_inelastic["Phi"]
+    # Matched Psi: same eps as Phi
+    psi_elastic = 0.5 * abs(-args.p_base / args.eps_U) * shortage_sq
+    psi_inelastic = 0.5 * abs(-args.p_base / args.eps_L) * shortage_sq
+    ce_r = ce_phi_lower / psi_elastic  # invariant; equals ce_phi_upper / psi_inelastic
+    ce_phi_lower_pct = 100.0 * ce_phi_lower
+    ce_phi_upper_pct = 100.0 * ce_phi_upper
+    rows_out.append(
+        {
+            "case_id": "common_epsilon",
+            "assumptions": f"Common epsilon in [{args.eps_L:g}, {args.eps_U:g}] (fixed anchors)",
+            "anchor_mode": "fixed",
+            "choke_M": float("inf"),
+            "phi_lower_pct": ce_phi_lower_pct,
+            "phi_upper_pct": ce_phi_upper_pct,
+            "ratio_lower": ce_r,
+            "ratio_upper": ce_r,
+            "ratio_range": f"{ce_r:.2f}",
+            "p_star_lower": sol_elastic["p_star"],
+            "p_star_upper": sol_inelastic["p_star"],
+        }
+    )
+    print(
+        f"  done: Phi in [{ce_phi_lower_pct:.3f}%, {ce_phi_upper_pct:.3f}%], R = {ce_r:.3f}"
+    )
 
     cases = [
         {

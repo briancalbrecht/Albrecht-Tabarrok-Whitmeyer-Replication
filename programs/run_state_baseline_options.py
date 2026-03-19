@@ -50,6 +50,45 @@ class BaselineScenario:
     point: Optional[str] = None  # low | mid | high
 
 
+SEARCH_PRESETS: Dict[str, Dict[str, int]] = {
+    "quick": {
+        "n_grid": 1201,
+        "outer_search_grid": 401,
+        "outer_max_iters": 1,
+        "outer_starts": 2,
+        "outer_coord_grid": 2,
+    },
+    "paper": {
+        "n_grid": 8001,
+        "outer_search_grid": 4001,
+        "outer_max_iters": 10,
+        "outer_starts": 12,
+        "outer_coord_grid": 5,
+    },
+}
+
+SEARCH_BUDGET_FIELDS: Tuple[str, ...] = (
+    "n_grid",
+    "outer_search_grid",
+    "outer_max_iters",
+    "outer_starts",
+    "outer_coord_grid",
+)
+
+
+def apply_search_preset(args: argparse.Namespace, *, default_preset: str) -> argparse.Namespace:
+    preset_name = args.search_preset or default_preset
+    if preset_name not in SEARCH_PRESETS:
+        raise ValueError(f"Unknown search preset={preset_name!r}.")
+
+    preset = SEARCH_PRESETS[preset_name]
+    for field in SEARCH_BUDGET_FIELDS:
+        if getattr(args, field) is None:
+            setattr(args, field, int(preset[field]))
+    args.search_preset = preset_name
+    return args
+
+
 def _load_baseline_data(repo_root: Path) -> pd.DataFrame:
     path = repo_root / "data/Raw Data/Full_Merged_Data_by_State.csv"
     if not path.exists():
@@ -820,11 +859,23 @@ def main() -> None:
     parser.add_argument("--q-max", type=float, default=1.0)
     parser.add_argument("--p0-method", type=str, choices=["controlled", "baseline_low", "baseline_high", "baseline_mid"], default="baseline_mid")
     parser.add_argument("--outer-p0", type=str, choices=["fixed", "coordsrch"], default="coordsrch")
-    parser.add_argument("--n-grid", type=int, default=2001)
-    parser.add_argument("--outer-search-grid", type=int, default=1001)
-    parser.add_argument("--outer-max-iters", type=int, default=3)
-    parser.add_argument("--outer-starts", type=int, default=4)
-    parser.add_argument("--outer-coord-grid", type=int, default=3)
+    parser.add_argument(
+        "--search-preset",
+        type=str,
+        choices=sorted(SEARCH_PRESETS),
+        default=None,
+        help="Search-budget preset. Defaults to `paper` when --replication is set, otherwise `quick`.",
+    )
+    parser.add_argument("--n-grid", type=int, default=None, help="Override final p-grid size; defaults from --search-preset.")
+    parser.add_argument(
+        "--outer-search-grid",
+        type=int,
+        default=None,
+        help="Override search-grid size used inside the outer p0 search; defaults from --search-preset.",
+    )
+    parser.add_argument("--outer-max-iters", type=int, default=None, help="Override outer coordinate-search passes; defaults from --search-preset.")
+    parser.add_argument("--outer-starts", type=int, default=None, help="Override multi-start count; defaults from --search-preset.")
+    parser.add_argument("--outer-coord-grid", type=int, default=None, help="Override candidate points per coordinate update; defaults from --search-preset.")
     parser.add_argument("--outer-seed", type=int, default=1974)
     parser.add_argument("--outer-tol", type=float, default=1e-6)
     parser.add_argument(
@@ -842,6 +893,10 @@ def main() -> None:
         ),
     )
     args = parser.parse_args()
+    args = apply_search_preset(
+        args,
+        default_preset="paper" if args.replication else "quick",
+    )
 
     # Backward-compatible default: if neither switch is passed, run both.
     if not args.run_state and not args.run_status:
@@ -853,6 +908,12 @@ def main() -> None:
             "Unsupported configuration: state-by-state adding-up with interval-anchor "
             "search (--outer-p0 coordsrch) has been removed. Use --adding-up national, "
             "or keep --adding-up state with --outer-p0 fixed."
+        )
+
+    if args.replication and args.outer_p0 == "coordsrch" and args.search_preset != "paper":
+        print(
+            "Warning: using a non-paper search preset for replication outputs. "
+            "Interval-anchor endpoints can move at low search budgets."
         )
 
     if args.out_dir is None:
@@ -880,6 +941,7 @@ def main() -> None:
             "q_max": float(args.q_max),
             "outer_p0": str(args.outer_p0),
             "p0_method": str(args.p0_method),
+            "search_preset": str(args.search_preset),
             "adding_up": str(args.adding_up),
             "n_grid": int(args.n_grid),
             "outer_search_grid": int(args.outer_search_grid),
@@ -907,6 +969,7 @@ def main() -> None:
             "drop_indiana": bool(scen.drop_indiana),
             "band": scen.band or "",
             "point": scen.point or "",
+            "search_preset": args.search_preset,
             "status": "ok",
             "error": "",
         }

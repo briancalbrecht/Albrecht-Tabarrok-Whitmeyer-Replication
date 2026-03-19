@@ -70,34 +70,20 @@ Mode = Literal["upper", "lower"]
 @dataclass(frozen=True)
 class MarketSpec:
     """
-    Primitives for market i in the Lemma 1 robust bounds problem.
-
-    Economic interpretation:
-    - Each market has an inverse demand curve P_i(q) passing through anchor (q0, p0).
-    - We observe q0 (quantity at controlled price) but not the full demand curve.
-    - Slope bounds [g_L, g_U] come from elasticity estimates: steeper = more inelastic.
-    - The choke price M bounds P_i(0): no one pays more than M for the first unit.
-
-    The envelopes ell(p) and u(p) are the min/max quantities market i could demand
-    at shadow price p, given slope constraints. These define the "reachability set"
-    from the anchor point.
+    Market i primitives for the Lemma 1 robust bounds problem.
 
     Parameters
     ----------
     name : str
         Market label (e.g., state name).
-    q0 : float
-        Observed quantity at controlled price (normalized by baseline).
-    p0 : float
-        Shadow price at q0. In the paper: extrapolated from baseline via slope bounds.
-    g_L : float
-        Steepest allowable slope (most negative). From elasticity lower bound.
-    g_U : float
-        Flattest allowable slope (least negative). From elasticity upper bound.
+    q0, p0 : float
+        Anchor point: P_i(q0) = p0 (observed allocation).
+    g_L, g_U : float
+        Slope bounds: g_L <= P'(q) <= g_U < 0. g_L is steeper (more negative).
     q_max : float
-        Capacity bound on quantity (default: inf = no bound).
+        Capacity bound (default inf).
     M : float
-        Choke price bound P(0) <= M (default: inf = no bound).
+        Choke cap P(0) <= M (default inf).
     """
 
     name: str
@@ -217,25 +203,9 @@ def _inner_x_many(
     max_iter: int = 200,
 ) -> np.ndarray:
     """
-    Solve the inner allocation problem given a candidate shadow price p*.
+    Inner QP: min Σ (x_i - c_i)²/(2κ_i)  s.t. Σ x_i = Q̄, l_i ≤ x_i ≤ u_i.
 
-    Economic interpretation:
-        Given p*, each market i has a "target" quantity c_i (from envelope)
-        and bounds [l_i, u_i] (from reachability). The adding-up constraint
-        Σ x_i = Q̄ may force some markets away from their targets.
-
-        This QP finds the allocation that deviates minimally from targets
-        while satisfying adding-up. The kappa_i weights reflect demand
-        curvature: markets with flatter demand (larger kappa) absorb more
-        of the reallocation.
-
-    Mathematical problem:
-        minimize  Σ_i (x_i - c_i)² / (2κ_i)
-        s.t.      Σ_i x_i = Q̄
-                  l_i ≤ x_i ≤ u_i
-
-    Solution via KKT: x_i(λ) = clip(c_i - λκ_i, [l_i, u_i]) where λ is the
-    shadow price of the adding-up constraint, found by bisection.
+    KKT: x_i(λ) = clip(c_i - λκ_i, [l_i, u_i]); bisect on λ.
     """
     l = np.asarray(l, dtype=float)
     u = np.asarray(u, dtype=float)
@@ -307,28 +277,11 @@ def solve_joint_bound(
     n_grid: int = 4001,
 ) -> Dict:
     """
-    Solve the Lemma 1 joint robust-bounds problem for n markets.
+    Lemma 1 joint robust bounds for n markets.
 
-    Economic problem (Lemma 1 in the paper):
-        Find the allocation x = (x_1, ..., x_n) that maximizes (mode="upper")
-        or minimizes (mode="lower") the misallocation DWL Φ, subject to:
-          (1) adding-up: Σ_i x_i = Q̄  (total quantity is fixed)
-          (2) reachability: x_i in the envelope set for market i
-
-    The envelope set captures what quantities are consistent with some
-    demand curve passing through anchor (q0_i, p0_i) with slope in [g_L, g_U].
-
-    Solution approach:
-        Outer loop: search over common shadow price p* on a grid.
-        Inner loop: for each p*, solve a strictly convex QP to find the
-            worst-case (or best-case) allocation x(p*) satisfying adding-up
-            and envelope constraints.
-
-    The key economic insight: the adding-up constraint with 48 markets
-    disciplines the bounds tightly. Reallocating to one state means taking
-    from another, which limits how bad misallocation can get.
-
-    Uses grid search for outer p-optimization and KKT/bisection for inner x.
+    Outer loop: grid search over common shadow price p*.
+    Inner loop: QP (KKT/bisection) for worst/best-case allocation x(p*)
+    subject to adding-up Σ x_i = Q̄ and envelope reachability.
     """
     ms = list(markets)
     if len(ms) < 2:

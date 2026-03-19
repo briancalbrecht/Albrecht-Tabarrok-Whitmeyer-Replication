@@ -1,0 +1,2 @@
+outer_p0,p0_method,Phi_upper_pct,Phi_lower_pct,Phi_upper_over_Psi_pct,Phi_lower_over_Psi_pct,p_star_upper,p_star_lower,p0_upper_min,p0_upper_max,p0_lower_min,p0_lower_max,outer_starts,outer_max_iters,outer_coord_grid,outer_search_grid
+coordsrch,baseline_mid,4.809463197628752,0.5155916356889384,237.50435543845643,25.461315342663575,1.395,1.25,0.6999999999999995,2.56215106417664,0.8499999999999998,1.78107553208832,4,2,2,2001

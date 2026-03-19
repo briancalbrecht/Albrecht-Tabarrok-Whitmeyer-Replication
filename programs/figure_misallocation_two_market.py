@@ -41,10 +41,10 @@ q2_eff = 0.375
 p_star = a1 - b1 * q1_eff  # = 0.625
 
 # Corner allocation: market 1 gets full demand, market 2 gets the residual
-q1_corner = q1_bar  # = 0.75 = D1_bar (exactly satisfied, no shortage)
-q2_corner = Q_bar - q1_bar  # = 0.25 (shortage in market 2)
-p1_corner = a1 - b1 * q1_corner  # = 0.5 = p_bar (shadow price = ceiling)
-p2_corner = a2 - b2 * q2_corner  # = 0.75 > p_bar (shortage)
+q1_corner = q1_bar  # = 0.75
+q2_corner = Q_bar - q1_bar  # = 0.25
+p1_corner = a1 - b1 * q1_corner  # = 0.5
+p2_corner = a2 - b2 * q2_corner  # = 0.75
 
 # 2x3 layout: markets 1-2-aggregate for panels A and B
 fig, axes = plt.subplots(2, 3, figsize=(14, 9))

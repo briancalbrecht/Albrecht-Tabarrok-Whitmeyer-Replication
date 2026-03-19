@@ -1,0 +1,33 @@
+{
+  "params": {
+    "adding_up": "national",
+    "eps_L": 0.2,
+    "eps_U": 0.4,
+    "eps_open": 0.3,
+    "n_grid": 1201,
+    "outer_coord_grid": 2,
+    "outer_max_iters": 1,
+    "outer_p0": "coordsrch",
+    "outer_search_grid": 401,
+    "outer_seed": 1974,
+    "outer_starts": 2,
+    "outer_tol": 1e-06,
+    "p0_method": "baseline_mid",
+    "p_base": 1.0,
+    "p_control": 0.8,
+    "q_max": 1.0,
+    "shortage": 0.09
+  },
+  "scenarios": {
+    "known_exact": {
+      "imputed_states": [],
+      "included_states": 36,
+      "known_states": 36,
+      "missing_in_baseline_file": [],
+      "mode": "known_only",
+      "state_avg_shadow_map_csv": "output/scenario_known_exact_maps/table_state_avg_shadow_map_known_exact.csv",
+      "state_avg_shadow_map_pdf": null,
+      "state_avg_shadow_map_png": null
+    }
+  }
+}

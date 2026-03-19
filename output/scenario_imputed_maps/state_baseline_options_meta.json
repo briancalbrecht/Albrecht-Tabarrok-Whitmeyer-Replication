@@ -1,0 +1,48 @@
+{
+  "params": {
+    "adding_up": "national",
+    "eps_L": 0.2,
+    "eps_U": 0.4,
+    "eps_open": 0.3,
+    "n_grid": 1201,
+    "outer_coord_grid": 2,
+    "outer_max_iters": 1,
+    "outer_p0": "coordsrch",
+    "outer_search_grid": 401,
+    "outer_seed": 1974,
+    "outer_starts": 2,
+    "outer_tol": 1e-06,
+    "p0_method": "baseline_mid",
+    "p_base": 1.0,
+    "p_control": 0.8,
+    "q_max": 1.0,
+    "search_preset": "quick",
+    "shortage": 0.09
+  },
+  "scenarios": {
+    "impute_full_mid": {
+      "imputed_states": [
+        "Arkansas",
+        "Delaware",
+        "Georgia",
+        "Louisiana",
+        "Massachusetts",
+        "New Mexico",
+        "New York",
+        "North Carolina",
+        "Oklahoma",
+        "Rhode Island",
+        "South Carolina",
+        "Texas"
+      ],
+      "included_states": 48,
+      "known_states": 36,
+      "missing_in_baseline_file": [],
+      "mode": "impute",
+      "p_hi": 0.6829077309647636,
+      "p_lo": 0.43726050914833103,
+      "p_use": 0.5600841200565474,
+      "price_band": "full_no_ind"
+    }
+  }
+}

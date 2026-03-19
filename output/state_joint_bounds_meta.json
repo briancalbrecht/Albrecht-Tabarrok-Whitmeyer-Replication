@@ -1,0 +1,104 @@
+{
+  "calibration": {
+    "Qbar": 0.9099999999999999,
+    "mean_rationing": 0.3707222912101103,
+    "q_non_open": 0.6553844601295201,
+    "q_open": 1.06,
+    "shortage": 0.09000000000000008
+  },
+  "data_coverage": {
+    "n_states": 48,
+    "note": "Uses AAA simplified file with DC dropped; optionally filtered to the requested state subset.",
+    "subset_id": "all",
+    "subset_label": "Full AAA sample",
+    "subset_states_raw_count": null,
+    "subset_states_used": [
+      "Arizona",
+      "Arkansas",
+      "California",
+      "Colorado",
+      "Connecticut",
+      "Delaware",
+      "Florida",
+      "Georgia",
+      "Hawaii",
+      "Idaho",
+      "Illinois",
+      "Indiana",
+      "Iowa",
+      "Kansas",
+      "Kentucky",
+      "Louisiana",
+      "Maine",
+      "Maryland",
+      "Massachusetts",
+      "Michigan",
+      "Minnesota",
+      "Mississippi",
+      "Missouri",
+      "Montana",
+      "Nebraska",
+      "Nevada",
+      "New Hampshire",
+      "New Jersey",
+      "New Mexico",
+      "New York",
+      "North Carolina",
+      "North Dakota",
+      "Ohio",
+      "Oklahoma",
+      "Oregon",
+      "Pennsylvania",
+      "Rhode Island",
+      "South Carolina",
+      "South Dakota",
+      "Tennessee",
+      "Texas",
+      "Utah",
+      "Vermont",
+      "Virginia",
+      "Washington",
+      "West Virginia",
+      "Wisconsin",
+      "Wyoming"
+    ]
+  },
+  "harberger": {
+    "Psi_ref": 0.02025000000000004,
+    "Psi_ref_pct": 2.025000000000004,
+    "g_steep": -5.0
+  },
+  "p0_ranges": {
+    "admissible": {
+      "p0_max": 2.56215106417664,
+      "p0_min": 0.6999999999999995
+    },
+    "lower_opt": {
+      "p0_max": 1.78107553208832,
+      "p0_min": 0.8499999999999998
+    },
+    "upper_opt": {
+      "p0_max": 2.56215106417664,
+      "p0_min": 0.6999999999999995
+    }
+  },
+  "params": {
+    "eps_L": 0.2,
+    "eps_U": 0.4,
+    "eps_open": 0.3,
+    "n_grid": 8001,
+    "outer_coord_grid": 2,
+    "outer_max_iters": 2,
+    "outer_p0": "coordsrch",
+    "outer_search_grid": 2001,
+    "outer_seed": 1974,
+    "outer_starts": 4,
+    "outer_tol": 1e-06,
+    "p0_method": "baseline_mid",
+    "p0_sweep": false,
+    "p_base": 1.0,
+    "p_control": 0.8,
+    "q_max": 1.0,
+    "shortage": 0.09
+  }
+}

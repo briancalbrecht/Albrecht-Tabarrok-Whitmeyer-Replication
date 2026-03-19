@@ -1,0 +1,2 @@
+scenario_id,scenario_label,mode,drop_indiana,band,point,search_preset,status,error,n_states,imputed_states_n,known_states_n,p_lo,p_hi,p_use,station_share_of_48,status_phi_lower_pct,status_phi_upper_pct,status_ratio_lower,status_ratio_upper,status_p_star_lower,status_p_star_upper,status_n_markets_active
+impute_full_mid,"Known gallons + missing imputed (full band, midpoint)",impute,False,full_no_ind,mid,quick,ok,,48,12,36,0.43726050914833103,0.6829077309647636,0.5600841200565474,1.0,2.2146252651036367,17.71743839181677,1.0936421062240185,8.749352292255196,1.225,1.45,91

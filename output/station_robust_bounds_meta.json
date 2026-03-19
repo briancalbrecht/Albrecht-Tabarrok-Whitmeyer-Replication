@@ -19,7 +19,7 @@
     "closed_frac": 0.37692932575142163,
     "n_states": 48,
     "open_frac": 0.6230706742485784,
-    "source": "/Users/brian_icle/Documents/GitHub/price_controls/replication/paper_figure_replication/data/AAA Fuel Report 1974 w State Names and total stations simplified.xlsx"
+    "source": "/Users/brian_icle/Documents/GitHub/price_controls/replication/data/AAA Fuel Report 1974 w State Names and total stations simplified.xlsx"
   },
   "subset": {
     "n_states_raw": null,
