@@ -38,12 +38,7 @@ from run_state_baseline_options import (
     _load_baseline_data,
     _scenario_mass_map,
 )
-from state_joint_robust_bounds import (
-    MarketSpec,
-    REPO_ROOT,
-    optimize_joint_bound_over_p0,
-    solve_joint_bound,
-)
+from state_joint_robust_bounds import MarketSpec, REPO_ROOT, optimize_joint_bound_over_p0, solve_joint_bound
 from state_status_joint_robust_bounds import (
     build_state_status_markets,
     load_state_rationing,
@@ -75,19 +70,38 @@ def _solve_fixed_slope_analytical(markets: Sequence[MarketSpec], Qbar: float) ->
     return {"Phi": Phi, "p_star": p_star}
 
 
-def _clone_markets_with_choke(markets: Sequence[MarketSpec], choke: float) -> List[MarketSpec]:
-    return [
-        MarketSpec(
-            name=m.name,
-            q0=m.q0,
-            p0=m.p0,
-            g_L=m.g_L,
-            g_U=m.g_U,
-            q_max=m.q_max,
-            M=float(choke),
-        )
-        for m in markets
-    ]
+def _build_state_status_case(
+    rows: Sequence,
+    *,
+    shortage: float,
+    p_control: float,
+    eps_open: float,
+    p_base: float,
+    eps_L: float,
+    eps_U: float,
+    q_max: float,
+    p0_method: str,
+    choke: float,
+) -> Tuple[List[MarketSpec], Dict, pd.DataFrame]:
+    """
+    Build the reduced-form theorem primitives for one empirical case.
+
+    Rebuilding per case keeps the admissible p0 interval synchronized with the
+    active restrictions, especially when a finite choke cap tightens the
+    anchor-price bounds implied by the baseline anchor.
+    """
+    return build_state_status_markets(
+        list(rows),
+        shortage=shortage,
+        p_control=p_control,
+        eps_open=eps_open,
+        p_base=p_base,
+        eps_L=eps_L,
+        eps_U=eps_U,
+        q_max=q_max,
+        p0_method=p0_method,
+        choke=choke,
+    )
 
 
 def _state_group_targets(markets: Sequence[MarketSpec]) -> Tuple[List[str], Dict[str, float]]:
@@ -253,8 +267,8 @@ def main() -> None:
     baseline_df = _load_baseline_data(REPO_ROOT)
     rows_s, mass_meta = _scenario_mass_map(rows=base_rows, baseline_df=baseline_df, scenario=scenario)
 
-    markets, meta, _shadow_df = build_state_status_markets(
-        list(rows_s),
+    markets, meta, _shadow_df = _build_state_status_case(
+        rows_s,
         shortage=args.shortage,
         p_control=args.p_control,
         eps_open=args.eps_open,
@@ -263,6 +277,7 @@ def main() -> None:
         eps_U=args.eps_U,
         q_max=args.q_max,
         p0_method=args.p0_method,
+        choke=float("inf"),
     )
 
     # Common Harberger benchmark used to compute R = L_Mis / L_Harb.
@@ -280,8 +295,8 @@ def main() -> None:
     print("Solving case: common_epsilon | anchor=fixed | choke=none")
     # With a common epsilon (g_L=g_U), the LP has kappa=0 and a unique
     # solution — use the exact analytical formula instead of the grid solver.
-    markets_elastic, meta_elastic, _ = build_state_status_markets(
-        list(rows_s),
+    markets_elastic, meta_elastic, _ = _build_state_status_case(
+        rows_s,
         shortage=args.shortage,
         p_control=args.p_control,
         eps_open=args.eps_open,
@@ -290,9 +305,10 @@ def main() -> None:
         eps_U=args.eps_U,
         q_max=args.q_max,
         p0_method=args.p0_method,
+        choke=float("inf"),
     )
-    markets_inelastic, meta_inelastic, _ = build_state_status_markets(
-        list(rows_s),
+    markets_inelastic, meta_inelastic, _ = _build_state_status_case(
+        rows_s,
         shortage=args.shortage,
         p_control=args.p_control,
         eps_open=args.eps_open,
@@ -301,6 +317,7 @@ def main() -> None:
         eps_U=args.eps_L,
         q_max=args.q_max,
         p0_method=args.p0_method,
+        choke=float("inf"),
     )
     sol_elastic = _solve_fixed_slope_analytical(markets_elastic, float(meta_elastic["Qbar"]))
     sol_inelastic = _solve_fixed_slope_analytical(markets_inelastic, float(meta_inelastic["Qbar"]))
@@ -359,10 +376,21 @@ def main() -> None:
         print(
             f"Solving case: {c['case_id']} | anchor={c['anchor_mode']} | choke={choke_label}"
         )
-        case_markets = _clone_markets_with_choke(markets, c["choke"])
+        case_markets, case_meta, _ = _build_state_status_case(
+            rows_s,
+            shortage=args.shortage,
+            p_control=args.p_control,
+            eps_open=args.eps_open,
+            p_base=args.p_base,
+            eps_L=args.eps_L,
+            eps_U=args.eps_U,
+            q_max=args.q_max,
+            p0_method=args.p0_method,
+            choke=float(c["choke"]),
+        )
         sol = _solve_case(
             markets=case_markets,
-            meta=meta,
+            meta=case_meta,
             adding_up=args.adding_up,
             anchor_mode=c["anchor_mode"],
             p_control=args.p_control,

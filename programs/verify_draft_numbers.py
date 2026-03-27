@@ -279,9 +279,9 @@ def main():
         # Row 4: choke
         r4 = rows["plus_choke"]
         c.check("T1R4_phi_lower_%", 2.21, r4["phi_lower_pct"], tol=0.01)
-        c.check("T1R4_phi_upper_%", 12.32, r4["phi_upper_pct"], tol=0.05)
+        c.check("T1R4_phi_upper_%", 12.40, r4["phi_upper_pct"], tol=0.05)
         c.check("T1R4_R_lower", 1.09, r4["ratio_lower"], tol=0.01)
-        c.check("T1R4_R_upper", 6.08, r4["ratio_upper"], tol=0.02)
+        c.check("T1R4_R_upper", 6.12, r4["ratio_upper"], tol=0.02)
     else:
         print("  SKIP: Table 1 CSV not found")
 

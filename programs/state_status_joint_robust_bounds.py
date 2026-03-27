@@ -87,8 +87,18 @@ def build_state_status_markets(
     eps_U: float,
     q_max: float,
     p0_method: str,
+    choke: float = float("inf"),
     min_mass: float = 1e-12,
 ) -> Tuple[List[MarketSpec], Dict, pd.DataFrame]:
+    """
+    Construct reduced-form theorem markets for the state x status application.
+
+    Empirically, each cell has a baseline anchor (q_base, p_base) and an
+    observed delivered quantity q_obs under the price control. The solver
+    itself works with the reduced-form theorem primitives (q_obs, p0), where
+    p0 = P(q_obs) is unknown but bounded by the baseline anchor, the slope
+    bounds, and, when finite, the choke cap P(0) <= M.
+    """
     stations = np.array([r.stations for r in rows], dtype=float)
     weights = stations / float(np.sum(stations))
     rationing = np.array([r.rationing for r in rows], dtype=float)
@@ -134,6 +144,7 @@ def build_state_status_markets(
                 p_base=p_base,
                 g_L=g_L,
                 g_U=g_U,
+                M=choke,
             )
 
             if p0_method == "controlled":
@@ -156,6 +167,7 @@ def build_state_status_markets(
                     g_L=float(g_L),
                     g_U=float(g_U),
                     q_max=float(q_max),
+                    M=float(choke),
                 )
             )
             p0_init_vec.append(float(p0))
@@ -193,6 +205,7 @@ def build_state_status_markets(
         "q_non_open": float(q_non_open),
         "rbar": float(rbar),
         "p0_method": p0_method,
+        "choke": float(choke),
         "p0_min": float(np.min(p0_init_vec)),
         "p0_max": float(np.max(p0_init_vec)),
         "p0_bounds_min": float(np.min(p0_lo_vec)),

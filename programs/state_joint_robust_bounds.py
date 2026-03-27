@@ -105,6 +105,12 @@ class MarketSpec:
             )
         if self.p0 < 0:
             raise ValueError(f"{self.name}: need p0 >= 0, got p0={self.p0}")
+        if np.isfinite(self.M):
+            max_p0 = self.M + self.g_U * self.q0
+            if self.p0 > max_p0 + 1e-12:
+                raise ValueError(
+                    f"{self.name}: choke cap and slope bounds imply p0 <= {max_p0}, got p0={self.p0}"
+                )
 
     @property
     def kappa(self) -> float:
@@ -810,6 +816,7 @@ def p0_bounds_from_baseline(
     p_base: float,
     g_L: float,
     g_U: float,
+    M: float = float("inf"),
 ) -> Tuple[float, float]:
     """
     Compute admissible shadow price bounds at observed quantity q_obs.
@@ -826,6 +833,12 @@ def p0_bounds_from_baseline(
     p_flat = p_base + g_U * (q_obs - q_base)
     lo = float(max(0.0, min(p_steep, p_flat)))
     hi = float(max(p_steep, p_flat))
+    if np.isfinite(M):
+        # The choke cap also limits the shadow price at the observed quantity.
+        hi = float(min(hi, M, M + g_U * q_obs))
+        lo = float(min(lo, M))
+        if lo > hi:
+            lo = hi
     return lo, hi
 
 
@@ -840,6 +853,7 @@ def build_state_markets(
     eps_U: float,
     q_max: float,
     p0_method: str,
+    choke: float = float("inf"),
 ) -> Tuple[List[MarketSpec], Dict]:
     """
     Construct MarketSpec objects from AAA survey data.
@@ -867,8 +881,8 @@ def build_state_markets(
         Taking extreme slopes gives [p0_lo, p0_hi]. Rationed states have
         higher shadow prices; oversupplied states have lower.
 
-    Note: No choke price constraint. State-level shadow prices stay well below
-    any reasonable choke (max ~2.6 vs choke ~5), so the constraint never binds.
+    If a finite choke is supplied, we intersect the baseline-implied p0 interval
+    with the additional restriction implied by P(0) <= M.
     """
     # Market weights: each state's share of total stations
     stations = np.array([r.stations for r in rows], dtype=float)
@@ -929,7 +943,12 @@ def build_state_markets(
         # If q_obs < q_base (rationed), shadow price > p_base.
         # If q_obs > q_base (oversupplied), shadow price < p_base.
         lo, hi = p0_bounds_from_baseline(
-            q_base=q_base, q_obs=q_obs, p_base=p_base, g_L=g_L, g_U=g_U
+            q_base=q_base,
+            q_obs=q_obs,
+            p_base=p_base,
+            g_L=g_L,
+            g_U=g_U,
+            M=choke,
         )
 
         # Select anchor p0 based on method
@@ -952,7 +971,7 @@ def build_state_markets(
                 g_L=float(g_L),
                 g_U=float(g_U),
                 q_max=float(q_max),
-                # No choke constraint: state-level shadow prices never approach choke
+                M=float(choke),
             )
         )
         p0_used.append(float(p0))
@@ -967,6 +986,7 @@ def build_state_markets(
         "q_non_open": q_non_open,
         "rbar": float(rbar),
         "p0_method": p0_method,
+        "choke": float(choke),
         "p0_min": float(np.min(p0_used)),
         "p0_max": float(np.max(p0_used)),
         "p0_bounds_min": float(np.min(p0_lo_vec)),
